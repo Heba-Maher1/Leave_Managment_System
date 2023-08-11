@@ -30,7 +30,7 @@
             <th scope="row">{{ $request->id }}</th>
             <td>{{ $request->employee->name }}</td>
             <td>{{ $request->employee->department }} - {{ $request->employee->job }} </td>
-            <td>{{ $request->leaveType->name }}</td>
+            <td>{{ isset($request->leaveType) ? $request->leaveType->name : 'null' }}</td>
             <td>{{ $request->start_at }}</td>
             <td>{{ $request->end_at}}</td>
             <td>{{ $request->reason}}</td>
