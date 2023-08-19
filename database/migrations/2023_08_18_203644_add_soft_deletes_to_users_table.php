@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leave_types', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->timestamps();
-
+        Schema::table('users', function (Blueprint $table) {
+            $table->softDeletes()->after('password');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leave_types');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

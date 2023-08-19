@@ -1,4 +1,4 @@
-<x-app-employee-layout>
+<x-app-layout>
     
     <div class="container mt-5 ">
         <x-alert name='success' class="alert alert-success" />
@@ -6,7 +6,7 @@
 
         <h1 class="my-4 fs-3 font-bold">Update Leave Request</h1>
 
-        <form method="POST" action="{{ route('leaveRequest.update' , $leaveRequest->id) }}">
+        <form method="POST" action="{{ route('employee.updateLeaveRequest', $leaveRequest->id ) }}">
             @csrf
             @method('put')
             <div class="mb-3 input-icon">
@@ -32,7 +32,7 @@
                 <span class="input-addon"><i class="fa-solid fa-briefcase"></i></span>
                 <input type="text" value="{{$leaveRequest->reason}}" class="form-control input-border-bottom" id="reason" name="reason" placeholder="reason" required>
             </div>
-            <button type="submit" class="btn bg-danger btn-block text-white w-full">Update</button>
+            <button type="submit" class="btn btn-block text-white w-full"  style="background: #41768a">Update</button>
         </form>
 
         

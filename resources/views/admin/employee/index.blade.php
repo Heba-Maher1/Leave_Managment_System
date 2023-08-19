@@ -1,12 +1,13 @@
 <x-app-layout>
     
     <div class="container mt-5 ">
+        
         <x-alert name='success' class="alert alert-success" />
-        <x-alert name='error' class="alert alert-danger" />
+        <x-alert name='errors' class="alert alert-danger" />
 
         <div class="d-flex justify-content-between align-items-center my-5">
             <h1 class="fs-3 font-bold">Employees</h1>
-            <button type="button" class="btn bg-danger text-white" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
+            <button type="button" class="btn text-white" style="background-color: #41768a" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
                 Create A New Employee
             </button>
         </div>
@@ -19,6 +20,7 @@
                 <th scope="col">Email</th>
                 <th scope="col">Department</th>
                 <th scope="col">Job</th>
+                <th scope="col">Created By</th>
                 <th scope="col"></th>
               </tr>
             </thead>
@@ -31,15 +33,22 @@
                 <td>{{ $employee->name }}</td>
                 <td>{{ $employee->department }}</td>
                 <td>{{ $employee->job }}</td>
+                <td>
+                    @if ($employee->createdByAdmin)
+                        {{ $employee->createdByAdmin->name }}
+                    @else
+                        N/A
+                    @endif
+                </td>
                 <td class="d-flex align-items-center">
-                    <a href="{{ route('employee.edit' , $employee->id)}}" class="btn bg-primary text-white me-2">
-                        Edit
+                    <a href="{{route('admin.editEmployee' , $employee->id)}}" class="me-3" >
+                        <i class="fa-solid fa-pen" style="color: #41768a"></i>
                     </a>
-                    <form action="{{route('employee.destroy' , $employee->id )}}" method="post">
+                    <form action="{{route('admin.destroyEmployee' , $employee->id)}}" method="post">
                         @csrf
                         @method('delete')
-                        <button type="submit" class="btn bg-danger text-white">
-                            Delete
+                        <button type="submit">
+                            <i class="fa-solid fa-trash text-danger"></i>
                         </button>
                     </form>
                 </td>
@@ -57,7 +66,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('employee.store') }}">
+                        <form method="POST" action="{{route('admin.createEmployee')}}">
                             @csrf
                             <div class="mb-3 input-icon">
                                 <span class="input-addon"><i class="fa-solid fa-user"></i></span>
@@ -75,14 +84,16 @@
                                 <span class="input-addon"><i class="fa-solid fa-briefcase"></i></span>
                                 <input type="text" class="form-control input-border-bottom" id="job" name="job" placeholder="Job" required>
                             </div>
-                            <button type="submit" class="btn bg-danger btn-block text-white w-full">Create</button>
+                            <div class="mb-3 input-icon">
+                                <span class="input-addon"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" class="form-control input-border-bottom" id="password" name="password" placeholder="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-block text-white w-full" style="background-color: #41768a">Create</button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-
-        
+        </div>  
 </x-app-layout>
 
 <style>

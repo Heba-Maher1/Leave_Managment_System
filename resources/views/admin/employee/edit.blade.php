@@ -6,7 +6,7 @@
 
         <h1 class="my-4 fs-3 font-bold">Update An Employee</h1>
 
-        <form method="POST" action="{{ route('employee.update' , $employee->id) }}">
+        <form method="POST" action="{{ route('admin.updateEmployee' , $employee->id) }}">
             @csrf
             @method('put')
             <div class="mb-3 input-icon">
@@ -25,13 +25,12 @@
                 <span class="input-addon"><i class="fa-solid fa-briefcase"></i></span>
                 <input type="text" value="{{$employee->job}}" class="form-control input-border-bottom" id="job" name="job" placeholder="Job" required>
             </div>
-            <button type="submit" class="btn bg-danger btn-block text-white w-full">Update</button>
+            <div class="mb-3 input-icon">
+                <span class="input-addon"><i class="fa-solid fa-lock"></i></i></span>
+                <input type="password" value="{{$employee->password}}" class="form-control input-border-bottom" id="password" name="password" placeholder="password" required>
+            </div>
+            <button type="submit" class="btn btn-block text-white w-full" style="background: #41768a">Update</button>
         </form>
-
-        
-
-
-        
 </x-app-layout>
 
 <style>

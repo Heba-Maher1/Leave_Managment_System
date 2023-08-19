@@ -7,7 +7,7 @@
         <h1 class="my-4 fs-3 font-weight-bold">Update An Employee</h1>
 
 
-        <form method="POST" action="{{ route('leavetype.update', $leavetype->id) }}">
+        <form method="POST" action="{{ route('admin.updateLeaveType', $leavetype->id) }}">
             @csrf
             @method('put')
             <div class="mb-3 input-icon">
@@ -18,7 +18,7 @@
                 <span class="input-addon"><i class="fa-solid fa-pen"></i></span>
                 <textarea class="form-control input-border-bottom" id="description" name="description" placeholder="Description" required>{{ $leavetype->description }}</textarea>
             </div>
-            <button type="submit" class="btn bg-danger btn-block text-white w-full">Update</button>
+            <button type="submit" class="btn btn-block text-white w-full" style="background: #41768a">Update</button>
         </form>
      
     </div>

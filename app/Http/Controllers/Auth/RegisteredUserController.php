@@ -33,11 +33,17 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'department' => ['required', 'string'], // Add department validation
+            'job' => ['required', 'string'], // Add job validation
+            'role' => ['required', 'string', 'in:admin,employee'], // Validate the role
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'department' => $request->department,
+            'job' => $request->job,
+            'role' => $request->role,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -46,6 +52,18 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        $url = '';
+
+        if($request->user()->role === 'admin'){
+
+            $url = 'admin/dashboard';
+
+        }else if($request->user()->role === 'employee'){
+
+            $url = 'employee/dashboard';
+            
+        }
+
+        return redirect()->intended($url);
     }
 }

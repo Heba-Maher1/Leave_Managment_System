@@ -1,12 +1,13 @@
 <x-app-layout>
     
     <div class="container mt-5 ">
+        
         <x-alert name='success' class="alert alert-success" />
         <x-alert name='errors' class="alert alert-danger" />
 
         <div class="d-flex justify-content-between align-items-center my-5">
             <h1 class="fs-3 font-bold">Leave Types</h1>
-            <button type="button" class="btn bg-danger text-white" data-bs-toggle="modal" data-bs-target="#createLeaveModal">
+            <button type="button" class="btn text-white" style="background-color: #41768a" data-bs-toggle="modal" data-bs-target="#createLeaveModal">
                 Create A New Leave Type
             </button>
         </div>
@@ -17,7 +18,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
-                <th scope="col">Admin</th>
+                <th scope="col">Create By</th>
                 <th scope="col"></th>
               </tr>
             </thead>
@@ -30,14 +31,14 @@
                 <td>{{ $leave->description }}</td>
                 <td>{{ $leave->user->name }}</td>
                 <td class="d-flex align-items-center">
-                    <a href="{{route('leavetype.edit' , $leave->id )}}" class="btn bg-primary text-white me-2">
-                        Edit
+                    <a href="{{route('admin.editLeaveType' , $leave->id )}}" class="me-3">
+                        <i class="fa-solid fa-pen" style="color: #41768a"></i>
                     </a>
-                    <form action="{{route('leavetype.destroy' , $leave->id )}}" method="post">
+                    <form action="{{route('admin.updateLeaveType' , $leave->id )}}" method="post">
                         @csrf
                         @method('delete')
-                        <button type="submit" class="btn bg-danger text-white">
-                            Delete
+                        <button type="submit">
+                            <i class="fa-solid fa-trash text-danger"></i>
                         </button>
                     </form>
                 </td>
@@ -55,18 +56,18 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('leavetype.store') }}">
+                        <form method="POST" action="{{ route('admin.createLeaveType') }}">
                             @csrf
                             <div class="mb-3 input-icon">
-                                <span class="input-addon"><i class="fa-solid fa-user"></i></span>
+                                <span class="input-addon"><i class="fa-solid fa-signature"></i></span>
                                 <input type="text" class="form-control input-border-bottom" id="name" name="name" placeholder="Name" required>
                             </div>
                             <div class="mb-3 input-icon">
-                                <span class="input-addon"><i class="fa-solid fa-envelope"></i></span>
+                                <span class="input-addon"><i class="fa-solid fa-pen"></i></span>
                                 <textarea type="text" class="form-control input-border-bottom" id="description" name="description" placeholder="Description" required></textarea>
                             </div>
 
-                            <button type="submit" class="btn bg-danger btn-block text-white w-full">Create</button>
+                            <button type="submit" class="btn btn-block text-white w-full" style="background-color: #41768a">Create</button>
                         </form>
                     </div>
                 </div>

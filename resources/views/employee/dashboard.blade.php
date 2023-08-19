@@ -1,24 +1,26 @@
-<x-app-employee-layout>
-    <div class="container mt-5 ">
-        @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-
+<x-app-layout>
+    <div class="container mt-5">
         <x-alert name='success' class="alert alert-success" />
-        {{-- <x-alert name='error' class="alert alert-danger" /> --}}
+        <x-alert name='errors' class="alert alert-danger" />
 
         <div class="d-flex justify-content-between align-items-center my-5">
-            <h1 class="fs-3 font-bold">Hello, {{ auth('employee')->user()->name }}</h1>
-            <button type="button" class="btn bg-danger text-white" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+            <h1 class="fs-3 font-bold">Hello, {{ Auth::user()->name }}</h1>
+            <button type="button" class="btn text-white" style="background-color: #41768a" data-bs-toggle="modal" data-bs-target="#createRequestModal">
                 Create A New Leave Request
             </button>
         </div>
+
+        <div class="mb-3">
+            <select class="form-control" id="statusFilter">
+                <option value="">All</option>
+                <option value="approved">Approved</option>
+                <option value="denied">Denied</option>
+                <option value="pending">Pending</option>
+            </select>
+          </div>
     
 
-        <table class="table">
+        <table class="table" id="requestTable">
             <thead>
             <tr>
                 <th scope="col">#</th>
@@ -34,26 +36,28 @@
             <tbody>
             @foreach ($requests as $request)
 
-            <tr>
+            <tr class="{{ $request->status === 'denied' ? 'locked' : '' }}" data-status="{{ $request->status }}">
                 <th scope="row">{{ $request->id }}</th>
-                <td>{{ $request->employee->name }}</td>
+                <td>{{ $request->user->name }}</td>
                 <td>{{ $request->leaveType->name }}</td>
                 <td>{{ $request->start_at }}</td>
                 <td>{{ $request->end_at }}</td>
                 <td>{{ $request->reason }}</td>
                 <td>{{ $request->status }}</td>
+                @if ($request->status !== 'denied')
                 <td class="d-flex align-items-center">
-                    <a href="{{ route('leaveRequest.edit' , $request->id)}}" class="btn bg-primary text-white me-2">
-                        Edit
+                    <a href="{{ route('employee.editLeaveRequest' , $request->id)}}" class="me-3">
+                        <i class="fa-solid fa-pen" style="color: #41768a"></i>
                     </a>
-                    <form action="{{route('leaveRequest.destroy' , $request->id )}}" method="post">
+                    <form action="{{route('employee.destroyLeaveRequest' , $request->id )}}" method="post">
                         @csrf
                         @method('delete')
-                        <button type="submit" class="btn bg-danger text-white">
-                            Delete
+                        <button type="submit">
+                            <i class="fa-solid fa-trash text-danger"></i>
                         </button>
                     </form>
                 </td>
+                @endif
             </tr>
             @endforeach
             
@@ -68,7 +72,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('leaveRequest.store') }}">
+                        <form method="POST" action="{{ route('employee.createLeaveRequest') }}">
                             @csrf
                             <div class="mb-3 input-icon">
                                 <span class="input-addon"><i class="fa-solid fa-user"></i></span>
@@ -95,14 +99,14 @@
                                 <input type="text" class="form-control input-border-bottom" id="reason" name="reason" placeholder="Reason" required>
                             </div>
 
-                            <button type="submit" class="btn bg-danger btn-block text-white w-full">Create</button>
+                            <button type="submit" class="btn btn-block text-white w-full" style="background-color: #41768a">Create</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</x-app-employee-layout>
+    </div>  
+</x-app-layout>
 <style>
     .input-icon {
     position: relative;
@@ -124,4 +128,28 @@
     padding-left: 40px; /* Adjust the padding based on your icon size */
 }
 
+.locked {
+    background-color: #f1f1f1;
+    /* You can also adjust other styles to indicate the locked state */
+}
 </style>
+
+<script>
+    const statusFilter = document.getElementById('statusFilter');
+    const requestTable = document.getElementById('requestTable');
+  
+    statusFilter.addEventListener('change', function () {
+        const selectedStatus = statusFilter.value;
+        const rows = requestTable.querySelectorAll('tbody tr');
+  
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (!selectedStatus || rowStatus === selectedStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+  </script>
+  

@@ -2,77 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
+use App\Models\LeaveRequest;
+use App\Models\LeaveType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-
 
 class EmployeeController extends Controller
 {
-
-    public function index()
+    public function dashboard()
     {
-        $adminId = Auth::id();
-        $employees = Employee::where('user_id', $adminId)->get();
-        $success = session('success');
-        return view('admin.employee.index' , compact('employees' , 'success'));
+        $employee = Auth::user();
+        $requests = $employee->leaveRequests; // Assuming the relationship is named leaveRequests
+        $leaveTypes = LeaveType::all();
+        
+        return view('employee.dashboard', compact('requests', 'leaveTypes'));
     }
 
+    public function createLeaveRequest(Request $request)
+    {
+        $user = Auth::user();
+        $currentYear = now()->year;
+        $requestCount = $user->leaveRequests()
+            ->whereYear('created_at', $currentYear)
+            ->count();
 
-    public function store(Request $request)
+        if ($requestCount >= 6) {
+            return back()->with('error', 'You can\'t make more than 6 requests in the year!');
+        }
+
+        $request->validate([
+            'start_at' => ['required'],
+            'end_at' => ['required'],
+            'reason' => ['required', 'string'],
+        ]);
+
+        $leaveRequest = new LeaveRequest();
+        $leaveRequest->user_id = $user->id;
+        $leaveRequest->leave_type_id = $request->input('leave_type_id');
+        $leaveRequest->start_at = $request->input('start_at');
+        $leaveRequest->end_at = $request->input('end_at');
+        $leaveRequest->reason = $request->input('reason');
+
+        $leaveRequest->save();
+    
+        return back()->with('success', 'Leave request created successfully.');
+    }
+
+    public function editLeaveRequest(LeaveRequest $leaveRequest)
+    {
+        $leaveTypes = LeaveType::all(); // Assuming you have a LeaveType model
+        $selectedLeaveTypeId = $leaveRequest->leave_type_id;
+
+        return view('employee.edit', [
+            'leaveRequest' => $leaveRequest,
+            'leaveTypes' => $leaveTypes,
+            'selectedLeaveTypeId' => $selectedLeaveTypeId,
+        ]);
+    }
+
+    public function updateLeaveRequest(Request $request, LeaveRequest $leaveRequest)
     {
         $request->validate([
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email'],
-            'department' => ['required', 'string'],
-            'job' => ['required', 'string'],
+            'start_at' => ['required'],
+            'end_at' => ['required'],
+            'reason' => ['required', 'string'],
+            'status' => ['in:pending,approved,denied'],
         ]);
 
-        $request->merge([
-            'password' => Str::random(10),
-            'user_id' => Auth::id(),
-        ]);
+        $leaveRequest->update($request->all());
 
-        Employee::create($request->all());
-
-        return redirect()->route('employee.index')->with('success', 'Employee Created Successfully');
+        return redirect()->route('employee.dashboard')->with('success', 'Leave request updated successfully.');
     }
 
-
-    public function edit(Employee $employee)
+    public function destroyLeaveRequest(LeaveRequest $leaveRequest)
     {
-        return view('admin.employee.edit' , compact('employee'));
+        $leaveRequest->delete();
+
+        return back()->with('success', 'Leave request Deleted successfully.');
     }
 
-
-
-    public function update(Request $request, Employee $employee)
+    public function trashedRequest ()
     {
-        $request->validate([
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email'],
-            'department' => ['required', 'string'],
-            'job' => ['required', 'string'],
-        ]);
-
-        $request->merge([
-            'password' => Str::random(10),
-            'user_id' => Auth::id(),
-        ]);
-
-        $employee->update($request->all());
-
-        return redirect()->route('employee.index' , compact('employee'))->with('success', 'Employee Updated Successfully');
+        $requests = LeaveRequest::onlyTrashed()->latest('deleted_at')->get();
+        return view('employee.trashed' , compact('requests'));
     }
 
-
-    public function destroy(Employee $employee)
+    public function restoreRequest ($id)
     {
-        $employee->delete();
-
-        return back()->with('success', 'Employee Deleted Successfully');
-
+        $requests = LeaveRequest::onlyTrashed()->findOrFail($id);
+        $requests->restore(); 
+        return redirect()->route('employee.dashboard')->with('success' , "Leave Request restored");
     }
     
+    public function forceDeleteRequest ($id)
+    {
+        $requests = LeaveRequest::withTrashed()->findOrFail($id);
+        $requests->forceDelete();
+
+        return redirect()->route('employee.dashboard')->with('success' , "Leave Request deleted forever!");
+    }
+
 }
